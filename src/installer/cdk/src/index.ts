@@ -25,8 +25,18 @@ async function main() {
     terminationProtection: true,
   });
 
-  const acceleratorName = 'PBMM';
-  const acceleratorPrefix = 'PBMMAccel-';
+  const acceleratorPrefixParam = new cdk.CfnParameter(stack, 'AcceleratorPrefix', {
+    default: 'PBMM',
+    description: 'Accelerator prefix used for deployment.',
+  });
+
+  const acceleratorNameParam = new cdk.CfnParameter(stack, 'AcceleratorName', {
+    default: 'PBMMAccel-',
+    description: 'Accelerator Name used for deployment.',
+  });
+
+  const acceleratorName = acceleratorNameParam.valueAsString;
+  const acceleratorPrefix = acceleratorPrefixParam.valueAsString;
 
   const acceleratorConfigS3Bucket = new cdk.CfnParameter(stack, 'ConfigS3Bucket', {
     default: 'pbmmaccel-config',
