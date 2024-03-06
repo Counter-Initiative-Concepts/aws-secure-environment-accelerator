@@ -104,6 +104,13 @@ async function main() {
     }),
   );
 
+  installerProjectRole.addToPrincipalPolicy(
+    new iam.PolicyStatement({
+      actions: ['sts:AssumeRole'],
+      resources: [`arn:aws:iam::${cdk.Aws.ACCOUNT_ID}:role/*`],
+    }),
+  );
+
   // Allow all CloudFormation permissions
   installerProjectRole.addToPrincipalPolicy(
     new iam.PolicyStatement({
@@ -116,7 +123,8 @@ async function main() {
   installerProjectRole.addToPrincipalPolicy(
     new iam.PolicyStatement({
       actions: ['s3:*'],
-      resources: [`arn:aws:s3:::cdktoolkit-stagingbucket-*`],
+      // resources: [`arn:aws:s3:::${acceleratorPrefix.toLowerCase()}cdktoolkit-stagingbucket-*`],
+      resources: [`arn:aws:s3:::cdk-${acceleratorPrefix.toLowerCase()}assets-*`],
     }),
   );
 
@@ -163,8 +171,9 @@ async function main() {
         build: {
           commands: [
             'cd src/core/cdk',
-            'pnpx cdk bootstrap --require-approval never',
-            'pnpx cdk deploy --require-approval never',
+            'export CDK_NEW_BOOTSTRAP=1',
+            `pnpx cdk bootstrap aws://${cdk.Aws.ACCOUNT_ID}/${cdk.Aws.REGION} --require-approval never --toolkit-stack-name=${acceleratorPrefix}CDKToolkit --cloudformation-execution-policies=arn:aws:iam::aws:policy/AdministratorAccess`,
+            `pnpx cdk deploy --require-approval never --toolkit-stack-name=${acceleratorPrefix}CDKToolkit`,
           ],
         },
       },
