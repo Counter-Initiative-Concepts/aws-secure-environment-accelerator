@@ -155,7 +155,7 @@ export namespace InitialSetup {
           s3Bucket: props.configS3Bucket,
           branchName: props.configBranchName,
           acceleratorVersion: props.acceleratorVersion!,
-          'inputConfig.$': '$',
+          'smInput.$': '$',
           'executionArn.$': '$$.Execution.Id',
           'stateMachineArn.$': '$$.StateMachine.Id',
           acceleratorPrefix: props.acceleratorPrefix,
@@ -170,13 +170,14 @@ export namespace InitialSetup {
           role: pipelineRole,
         },
         functionPayload: {
-          'inputConfig.$': '$',
+          'inputConfig.$': '$.configuration.smInput',
           region: cdk.Aws.REGION,
           configRepositoryName: props.configRepositoryName,
           'configFilePath.$': '$.configuration.configFilePath',
           'configCommitId.$': '$.configuration.configCommitId',
           'acceleratorVersion.$': '$.configuration.acceleratorVersion',
           'baseline.$': '$.configuration.baselineOutput.baseline',
+          parametersTableName: parametersTable.tableName,
         },
         resultPath: 'DISCARD',
       });
@@ -234,6 +235,7 @@ export namespace InitialSetup {
           'acceleratorVersion.$': '$.configuration.acceleratorVersion',
           'configRootFilePath.$': '$.configuration.configRootFilePath',
           'organizationAdminRole.$': '$.configuration.baselineOutput.organizationAdminRole',
+          'smInput.$': '$.configuration.smInput',
         },
         resultPath: '$.configuration',
       });
@@ -361,6 +363,7 @@ export namespace InitialSetup {
           'accounts.$': '$.configuration.accounts',
           'configRootFilePath.$': '$.configuration.configRootFilePath',
           'organizationAdminRole.$': '$.configuration.organizationAdminRole',
+          'smInput.$': '$.configuration.smInput',
         },
         resultPath: '$',
       });
@@ -606,6 +609,8 @@ export namespace InitialSetup {
           ACCELERATOR_STATE_MACHINE_NAME: props.stateMachineName,
           CONFIG_BRANCH_NAME: props.configBranchName,
           STACK_OUTPUT_TABLE_NAME: outputsTable.tableName,
+          'SCOPE.$': '$.scope',
+          'MODE.$': '$.mode',
         };
 
         const deployTask = new tasks.StepFunctionsStartExecution(this, `Deploy Phase ${phase}`, {
